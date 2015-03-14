@@ -65,12 +65,38 @@
                 });
             }
             
+            var ohiVendors;
+            var ohiVendorsWithoutLocation;
+            
+            // Get all venders in the NRV
+            var ohiVendorsUrl = 'http://api.openhealthinspection.com/vendors?locality=New%20River%20Health%20District';
+            
+            function getOhiVendors() {
+                $.ajax({
+                    url: ohiVendorsUrl,
+                    dataType: 'jsonp'
+                })
+                .done(function(data){
+                    ohiVendors = data;
+                    ohiVendorsWithoutLocation = [];
+                    for (var vendorId in ohiVendors) {
+                        var vendor = ohiVendors[vendorId];
+                        if(!vendor.coordinates){
+                            ohiVendorsWithoutLocation.push(vendor);
+                        }
+                    }
+                    console.log(ohiVendorsWithoutLocation);
+                });
+            }
+            
             $(function(){
                 $('#address').keyup(function(e){
                     if(e.keyCode == 13) {
                         geocodeAddress();
                     }
                 });
+                
+                getOhiVendors();
             });
         </script>
     </head>
