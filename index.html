@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Open Health Inspection Address Fixer</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        
+        <style type="text/css">
+            #map-canvas { 
+                height: 400px; 
+                margin-top: 10px;
+            }
+            
+            #map-container {
+                padding: 10px;
+                border: solid 1px black;
+            }
+        </style>
+        
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js" ></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNsyojm0VjBde5v9AVunWHm1qBF2lCiKE"></script>
+        <script type="text/javascript">
+            var map;
+            
+            function initialize() {
+                var mapOptions = {
+                    center: {lat: 37.2070304, lng: -80.4103956},
+                    zoom: 11
+                };
+                map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+            }
+            
+            google.maps.event.addDomListener(window, 'load', initialize);
+            
+            $(function(){
+                
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="text-center">
+                <h2>Open Health Inspection Address Fixer</h2>
+            </div>
+            
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2">
+                    <div id="map-container">
+                        <div id="map-canvas"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
