@@ -16,6 +16,7 @@
             
             #map-container {
                 padding: 10px;
+                margin: 10px;
                 border: solid 1px black;
             }
         </style>
@@ -67,6 +68,7 @@
             
             var ohiVendors;
             var ohiVendorsWithoutLocation;
+            var currentVendor;
             
             // Get all venders in the NRV
             var ohiVendorsUrl = 'http://api.openhealthinspection.com/vendors?locality=New%20River%20Health%20District';
@@ -85,8 +87,17 @@
                             ohiVendorsWithoutLocation.push(vendor);
                         }
                     }
-                    console.log(ohiVendorsWithoutLocation);
+                    currentVendor = getRandomVendor();
                 });
+            }
+            
+            function getRandomVendor() {
+                var random = Math.floor((Math.random() * ohiVendorsWithoutLocation.length));
+                var vendor = ohiVendorsWithoutLocation[random];
+                $('#current-vendor-name').html(vendor['name']);
+                $('#current-vendor-address').html(vendor['address']);
+                $('#current-vendor-city').html(vendor['city']);
+                return vendor;
             }
             
             $(function(){
@@ -94,6 +105,10 @@
                     if(e.keyCode == 13) {
                         geocodeAddress();
                     }
+                });
+                
+                $('#btn-skip-vendor').click(function(){
+                    currentVendor = getRandomVendor();
                 });
                 
                 getOhiVendors();
@@ -104,6 +119,23 @@
         <div class="container">
             <div class="text-center">
                 <h2>Open Health Inspection Address Fixer</h2>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <div id="current-vendor-name"></div>
+                    <div id="current-vendor-address"></div>
+                    <div id="current-vendor-city"></div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <div>
+                        <button id="btn-skip-vendor" class="btn btn-primary">Skip Vendor</button>
+                        <button id="btn-save-vendor" class="btn btn-success">Save Vendor</button>
+                    </div>
+                </div>
             </div>
             
             <div class="row">
