@@ -25,6 +25,8 @@
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNsyojm0VjBde5v9AVunWHm1qBF2lCiKE"></script>
         <script type="text/javascript">
             var map;
+            var geocoder;
+            var marker;
             
             function initialize() {
                 var mapOptions = {
@@ -32,12 +34,43 @@
                     zoom: 11
                 };
                 map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+                geocoder = new google.maps.Geocoder();
             }
             
             google.maps.event.addDomListener(window, 'load', initialize);
             
-            $(function(){
+            function geocodeAddress() {
+                $('#search-form').hide();
+                $('#loading-results').show();
                 
+                var address = $('#address').val();
+                
+                geocoder.geocode( { 'address': address}, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var position = results[0].geometry.location;
+                        $('#current-address').html(results[0].formatted_address);
+                        
+                        map.setCenter(position);
+                        map.setZoom(16);
+                        
+                        if(marker)
+                            marker.setMap(null);
+                        marker = new google.maps.Marker({
+                            position: position,
+                            map: map
+                        });
+                    } else {
+                        alert('Address not found');
+                    }
+                });
+            }
+            
+            $(function(){
+                $('#address').keyup(function(e){
+                    if(e.keyCode == 13) {
+                        geocodeAddress();
+                    }
+                });
             });
         </script>
     </head>
@@ -50,6 +83,20 @@
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2">
                     <div id="map-container">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                Search for a location: 
+                                <div class="input-group">
+                                    <input id="address" class="form-control" type="text">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" onclick="geocodeAddress()">Search</button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div id="current-address"></div>
+                            </div>
+                        </div>
                         <div id="map-canvas"></div>
                     </div>
                 </div>
