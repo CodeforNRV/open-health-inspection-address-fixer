@@ -19,6 +19,10 @@
                 margin: 10px;
                 border: solid 1px black;
             }
+            
+            #credentials-modal input {
+                margin-bottom: 10px;
+            }
         </style>
         
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
@@ -102,10 +106,9 @@
                     ohiVendorsWithoutLocation = [];
                     for (var vendorId in ohiVendors) {
                         var vendor = ohiVendors[vendorId];
+                        vendor['vendorId'] = vendorId;
                         if(!vendor.coordinates){
                             ohiVendorsWithoutLocation.push(vendor);
-                        } else {
-                            console.log(vendor);
                         }
                     }
                     $('#vender-count').html(ohiVendorsWithoutLocation.length + ' vendors to map');
@@ -163,6 +166,18 @@
                 return vendor;
             }
             
+            function setCredentials(email, apiKey) {
+                currentEmail = email;
+                currentApiKey = apiKey;
+                if(supports_html5_storage) {
+                    localStorage['ohiVendorDbEmail'] = currentEmail;
+                    localStorage['ohiVendorDbApiKey'] = currentApiKey;
+                }
+                $('#current-email').html(currentEmail || 'Not Set');
+                $('#current-api-key').html(currentApiKey || 'Not Set');
+                getFixedVendors();
+            }
+            
             $(function(){
                 $('#address').keyup(function(e){
                     if(e.keyCode == 13) {
@@ -178,23 +193,28 @@
                     saveVendor();
                 });
                 
-                $('#change-api-key-btn').click(function(){
-                    $('#api-key-modal').modal('show');
+                $('#change-credentials-btn').click(function(){
+                    $('#credentials-modal').modal('show');
                 });
                 
-                $('#save-api-key-btn').click(function() {
-                    currentApiKey = $('#new-api-key').val();
-                    if(supports_html5_storage)
-                        localStorage['ohiVendorDbApiKey'] = currentApiKey
-                    $('#current-api-key').html(currentApiKey || 'Not Set');
-                    getFixedVendors();
+                $('#save-credentials-btn').click(function() {
+                    var email = $('#new-email').val();
+                    var apiKey = $('#new-api-key').val();
+                    if(!email || !apiKey) {
+                        alert('Credentials not set');
+                        return;
+                    }
+                    setCredentials(email, apiKey);
                 });
                 
-                if(supports_html5_storage)
+                if(supports_html5_storage) {
+                    currentEmail = localStorage['ohiVendorDbEmail'];
                     currentApiKey = localStorage['ohiVendorDbApiKey'];
+                }
                 if(!currentApiKey)
-                    $('#api-key-modal').modal('show');
-                $('#current-api-key').html(currentApiKey || 'Not Set');
+                    $('#credentials-modal').modal('show');
+                else
+                    setCredentials(currentEmail, currentApiKey);
                 
                 getOhiVendors();
             });
@@ -248,26 +268,28 @@
             </div>
             
             <div class="text-center">
+                <div>E-Mail: <span id="current-email">Not Set</span></div>
                 <div>API Key: <span id="current-api-key">Not Set</span></div>
                 <div>
-                    <button id="change-api-key-btn" class="btn btn-link">Change API Key</button>
+                    <button id="change-credentials-btn" class="btn btn-link">Change Credentials</button>
                 </div>
             </div>
         </div>
         
-        <div id="api-key-modal" class="modal fade">
+        <div id="credentials-modal" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Enter your Database API Key</h4>
+                        <h4 class="modal-title">Enter your Credentials</h4>
                     </div>
                     <div class="modal-body">
+                        <input id="new-email" class="form-control" type="text" placeholder="E-Mail" />
                         <input id="new-api-key" class="form-control" type="text" placeholder="API Key" />
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button id="save-api-key-btn" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+                        <button id="save-credentials-btn" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
