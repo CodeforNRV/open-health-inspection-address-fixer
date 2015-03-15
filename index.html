@@ -37,9 +37,25 @@
                 };
                 map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
                 geocoder = new google.maps.Geocoder();
+                marker = new google.maps.Marker({
+                    position: mapOptions.center,
+                    map: map
+                });
+                setMapCenter(map.getCenter());
+                
+                google.maps.event.addListener(map, 'center_changed', function(){
+                    setMapCenter(map.getCenter());
+                });
             }
             
             google.maps.event.addDomListener(window, 'load', initialize);
+            
+            function setMapCenter(center) {
+                marker.setPosition(center);
+                var lat = center.lat().toFixed(5);
+                var lng = center.lng().toFixed(5);
+                $('#current-location').html(lat + ', ' + lng);
+            }
             
             function geocodeAddress() {
                 $('#search-form').hide();
@@ -54,13 +70,6 @@
                         
                         map.setCenter(position);
                         map.setZoom(16);
-                        
-                        if(marker)
-                            marker.setMap(null);
-                        marker = new google.maps.Marker({
-                            position: position,
-                            map: map
-                        });
                     } else {
                         alert('Address not found');
                     }
@@ -186,7 +195,8 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div id="current-address"></div>
+                                <div>Current Location: <span id="current-location"></span></div>
+                                <div>Last Search: <span id="current-address"></span></div>
                             </div>
                         </div>
                         <div id="map-canvas"></div>
