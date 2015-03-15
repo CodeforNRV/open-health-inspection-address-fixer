@@ -30,6 +30,14 @@
             var marker;
             var currentApiKey;
             
+            function supports_html5_storage() {
+                try {
+                    return 'localStorage' in window && window['localStorage'] !== null;
+                } catch (e) {
+                    return false;
+                }
+            }
+            
             function initialize() {
                 var mapOptions = {
                     center: {lat: 37.2070304, lng: -80.4103956},
@@ -176,11 +184,17 @@
                 
                 $('#save-api-key-btn').click(function() {
                     currentApiKey = $('#new-api-key').val();
+                    if(supports_html5_storage)
+                        localStorage['ohiVendorDbApiKey'] = currentApiKey
                     $('#current-api-key').html(currentApiKey || 'Not Set');
                     getFixedVendors();
                 });
                 
-                $('#api-key-modal').modal('show');
+                if(supports_html5_storage)
+                    currentApiKey = localStorage['ohiVendorDbApiKey'];
+                if(!currentApiKey)
+                    $('#api-key-modal').modal('show');
+                $('#current-api-key').html(currentApiKey || 'Not Set');
                 
                 getOhiVendors();
             });
