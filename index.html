@@ -28,6 +28,7 @@
             var map;
             var geocoder;
             var marker;
+            var currentApiKey;
             
             function initialize() {
                 var mapOptions = {
@@ -87,8 +88,13 @@
                             ohiVendorsWithoutLocation.push(vendor);
                         }
                     }
+                    $('#vender-count').html(ohiVendorsWithoutLocation.length + ' vendors to map');
                     currentVendor = getRandomVendor();
                 });
+            }
+            
+            function getFixedVendors() {
+                var url = 'https://api.mongolab.com/api/1/databases/my-db/collections/my-coll?apiKey=';
             }
             
             function getRandomVendor() {
@@ -107,9 +113,21 @@
                     }
                 });
                 
-                $('#btn-skip-vendor').click(function(){
+                $('#skip-vendor-btn').click(function(){
                     currentVendor = getRandomVendor();
                 });
+                
+                $('#change-api-key-btn').click(function(){
+                    $('#api-key-modal').modal('show');
+                });
+                
+                $('#save-api-key-btn').click(function() {
+                    currentApiKey = $('#new-api-key').val();
+                    $('#current-api-key').html(currentApiKey || 'Not Set');
+                    console.log(currentApiKey);
+                });
+                
+                $('#api-key-modal').modal('show');
                 
                 getOhiVendors();
             });
@@ -119,6 +137,7 @@
         <div class="container">
             <div class="text-center">
                 <h2>Open Health Inspection Address Fixer</h2>
+                <h5 id="vender-count"></h5>
             </div>
             
             <div class="row">
@@ -132,8 +151,8 @@
             <div class="row">
                 <div class="col-xs-12 text-center">
                     <div>
-                        <button id="btn-skip-vendor" class="btn btn-primary">Skip Vendor</button>
-                        <button id="btn-save-vendor" class="btn btn-success">Save Vendor</button>
+                        <button id="skip-vendor-btn" class="btn btn-primary">Skip Vendor</button>
+                        <button id="save-vendor-btn" class="btn btn-success">Save Vendor</button>
                     </div>
                 </div>
             </div>
@@ -159,6 +178,32 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="text-center">
+                <div>API Key: <span id="current-api-key">Not Set</span></div>
+                <div>
+                    <button id="change-api-key-btn" class="btn btn-link">Change API Key</button>
+                </div>
+            </div>
         </div>
+        
+        <div id="api-key-modal" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Enter your Database API Key</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input id="new-api-key" type="text" placeholder="API Key" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button id="save-api-key-btn" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        
     </body>
 </html>
