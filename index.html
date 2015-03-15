@@ -96,6 +96,8 @@
                         var vendor = ohiVendors[vendorId];
                         if(!vendor.coordinates){
                             ohiVendorsWithoutLocation.push(vendor);
+                        } else {
+                            console.log(vendor);
                         }
                     }
                     $('#vender-count').html(ohiVendorsWithoutLocation.length + ' vendors to map');
@@ -103,13 +105,16 @@
                 });
             }
             
+            function getApiKey() {
+                return 'https://api.mongolab.com/api/1/databases/ohi-addresses/collections/vendors?apiKey=' + currentApiKey;
+            }
+            
             function getFixedVendors() {
                 if(!currentApiKey)
                     return;
                 
-                var url = 'https://api.mongolab.com/api/1/databases/ohi-addresses/collections/vendors?apiKey=' + currentApiKey;
                 $.ajax({
-                    url: url,
+                    url: getApiKey(),
                     dataType: 'json'
                 })
                 .done(function(data){
@@ -118,6 +123,26 @@
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     alert('Error connecting to fixed vendor database');
+                });
+            }
+            
+            function saveVendor() {
+                currentVendor['coordinates'] = {
+                    'latitude': map.getCenter().lat(),
+                    'longitude': map.getCenter().lng()
+                };
+                
+                $.ajax({
+                    url: getApiKey(),
+                    data: JSON.stringify(currentVendor),
+                    type: 'POST',
+                    contentType: 'application/json'
+                })
+                .done(function(){
+                    getRandomVendor();
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert('Error saving location to vendor database');
                 });
             }
             
@@ -139,6 +164,10 @@
                 
                 $('#skip-vendor-btn').click(function(){
                     currentVendor = getRandomVendor();
+                });
+                
+                $('#save-vendor-btn').click(function(){
+                    saveVendor();
                 });
                 
                 $('#change-api-key-btn').click(function(){
