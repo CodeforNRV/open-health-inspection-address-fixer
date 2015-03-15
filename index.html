@@ -69,6 +69,7 @@
             
             var ohiVendors;
             var ohiVendorsWithoutLocation;
+            var fixedVendors;
             var currentVendor;
             
             // Get all venders in the NRV
@@ -94,7 +95,21 @@
             }
             
             function getFixedVendors() {
-                var url = 'https://api.mongolab.com/api/1/databases/my-db/collections/my-coll?apiKey=';
+                if(!currentApiKey)
+                    return;
+                
+                var url = 'https://api.mongolab.com/api/1/databases/ohi-addresses/collections/vendors?apiKey=' + currentApiKey;
+                $.ajax({
+                    url: url,
+                    dataType: 'json'
+                })
+                .done(function(data){
+                    fixedVendors = data;
+                    console.log(fixedVendors);
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert('Error connecting to fixed vendor database');
+                });
             }
             
             function getRandomVendor() {
@@ -124,7 +139,7 @@
                 $('#save-api-key-btn').click(function() {
                     currentApiKey = $('#new-api-key').val();
                     $('#current-api-key').html(currentApiKey || 'Not Set');
-                    console.log(currentApiKey);
+                    getFixedVendors();
                 });
                 
                 $('#api-key-modal').modal('show');
@@ -195,7 +210,7 @@
                         <h4 class="modal-title">Enter your Database API Key</h4>
                     </div>
                     <div class="modal-body">
-                        <input id="new-api-key" type="text" placeholder="API Key" />
+                        <input id="new-api-key" class="form-control" type="text" placeholder="API Key" />
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
