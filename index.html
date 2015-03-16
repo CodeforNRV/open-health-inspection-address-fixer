@@ -33,6 +33,7 @@
             var geocoder;
             var marker;
             var currentApiKey;
+            var defaultCenter;
             
             function supports_html5_storage() {
                 try {
@@ -54,6 +55,7 @@
                     map: map
                 });
                 setMapCenter(map.getCenter());
+                defaultCenter = map.getCenter();
                 
                 google.maps.event.addListener(map, 'center_changed', function(){
                     setMapCenter(map.getCenter());
@@ -91,6 +93,7 @@
             var ohiVendors;
             var ohiVendorsWithoutLocation;
             var fixedVendors;
+            var vendorsToFix;
             var currentVendor;
             
             // Get all venders in the NRV
@@ -111,8 +114,7 @@
                             ohiVendorsWithoutLocation.push(vendor);
                         }
                     }
-                    $('#vender-count').html(ohiVendorsWithoutLocation.length + ' vendors to map');
-                    currentVendor = getRandomVendor();
+                    getVendorsToFix();
                 });
             }
             
@@ -130,7 +132,7 @@
                 })
                 .done(function(data){
                     fixedVendors = data;
-                    console.log(fixedVendors);
+                    getVendorsToFix();
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     alert('Error connecting to fixed vendor database');
@@ -142,6 +144,12 @@
                     'latitude': map.getCenter().lat(),
                     'longitude': map.getCenter().lng()
                 };
+                currentVendor['geocodedByEmail'] = currentEmail;
+                currentVendor['geocodedByKey'] = currentApiKey;
+                
+                $('#current-vendor-name').html('');
+                $('#current-vendor-address').html('Saving');
+                $('#current-vendor-city').html('');
                 
                 $.ajax({
                     url: getApiKey(),
@@ -150,20 +158,44 @@
                     contentType: 'application/json'
                 })
                 .done(function(){
-                    getRandomVendor();
+                    getFixedVendors();
+                    map.setCenter(defaultCenter);
+                    map.setZoom(11);
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     alert('Error saving location to vendor database');
                 });
             }
             
+            function getVendorsToFix() {
+                vendorsToFix = [];
+                
+                if(ohiVendorsWithoutLocation && fixedVendors) {
+                    for(var i=0; i<ohiVendorsWithoutLocation.length; i++) {
+                        var vendorFixedBy = [];
+                        for(var j=0; j<fixedVendors.length; j++) {
+                            if(ohiVendorsWithoutLocation[i]['vendorId'] === fixedVendors[j]['vendorId']) {
+                                vendorFixedBy.push(fixedVendors[j]['geocodedByKey']);
+                            }
+                        }
+                        if(vendorFixedBy.length < 2 && vendorFixedBy.indexOf(currentApiKey) === -1) {
+                            vendorsToFix.push(ohiVendorsWithoutLocation[i]);
+                        }
+                    }
+                }
+                
+                $('#vender-count').html(vendorsToFix.length + ' vendors to map');
+                getRandomVendor();
+            }
+            
             function getRandomVendor() {
-                var random = Math.floor((Math.random() * ohiVendorsWithoutLocation.length));
-                var vendor = ohiVendorsWithoutLocation[random];
-                $('#current-vendor-name').html(vendor['name']);
-                $('#current-vendor-address').html(vendor['address']);
-                $('#current-vendor-city').html(vendor['city']);
-                return vendor;
+                if(!vendorsToFix || vendorsToFix.length < 1)
+                    return;
+                var random = Math.floor((Math.random() * vendorsToFix.length));
+                currentVendor = vendorsToFix[random];
+                $('#current-vendor-name').html(currentVendor['name']);
+                $('#current-vendor-address').html(currentVendor['address']);
+                $('#current-vendor-city').html(currentVendor['city']);
             }
             
             function setCredentials(email, apiKey) {
@@ -186,7 +218,7 @@
                 });
                 
                 $('#skip-vendor-btn').click(function(){
-                    currentVendor = getRandomVendor();
+                    getRandomVendor();
                 });
                 
                 $('#save-vendor-btn').click(function(){
