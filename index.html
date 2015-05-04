@@ -178,7 +178,7 @@
                                 vendorFixedBy.push(fixedVendors[j]['geocodedByKey']);
                             }
                         }
-                        if(vendorFixedBy.length < 2 && vendorFixedBy.indexOf(currentApiKey) === -1) {
+                        if(vendorFixedBy.length < 3 && vendorFixedBy.indexOf(currentApiKey) === -1) {
                             vendorsToFix.push(ohiVendorsWithoutLocation[i]);
                         }
                     }
