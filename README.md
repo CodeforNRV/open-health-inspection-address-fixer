@@ -6,4 +6,5 @@ This tool gets the restaurants from the Open Health Inspection API, and uses Goo
 ## Contributors
 [Ben Schoenfeld](https://github.com/bschoenfeld)  
 [Timothy Luc](https://github.com/TimothyLuc)  
+[Yue Yu](https://github.com/yueyu860)  
 
